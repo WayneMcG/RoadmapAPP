@@ -19,7 +19,7 @@ function App() {
     title: '',
     description: '',
     dueDate: '',
-    status: 'backlog'
+    status: 'Q2:2025'
   });
   
   // Drag and drop state
@@ -68,7 +68,7 @@ function App() {
       title: '',
       description: '',
       dueDate: '',
-      status: 'backlog'
+      status: 'Q2:2025'
     });
     
     setFormVisible(false);
@@ -101,7 +101,7 @@ function App() {
       title: '',
       description: '',
       dueDate: '',
-      status: 'backlog'
+      status: 'Q2:2025'
     });
     setFormVisible(false);
   };
@@ -159,10 +159,10 @@ function App() {
   
   // Column definitions
   const columns = [
-    { id: 'backlog', title: 'Backlog' },
-    { id: 'ready', title: 'Ready' },
-    { id: 'in-progress', title: 'In Progress' },
-    { id: 'in-review', title: 'In Review' },
+    { id: 'Q2:2025', title: 'Q2:2025' },
+    { id: 'Q3:2025', title: 'Q3:2025' },
+    { id: 'Q4:2025', title: 'Q4:2025' },
+    { id: 'Q1:2026', title: 'Q2:2026' },
     { id: 'done', title: 'Done' }
   ];
   
