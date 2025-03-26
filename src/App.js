@@ -189,7 +189,6 @@ function App() {
     { id: 'Q1:2026', title: 'Q2:2026' },
     { id: 'done', title: 'Done' },
   ];
-  
   return (
     <div className="app-container">
       <header className="app-header">
