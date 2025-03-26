@@ -6,7 +6,7 @@ function App() {
   // Sample initial items
   const [items, setItems] = useState([
     { id: 1, title: 'Research', status: 'Q2: 2025', description: 'Research market and competition', dueDate: '2025-04-01', linkedItems: [] },
-    { id: 2, title: 'Design', status: 'Q3:2025', description: 'Create UI/UX designs', dueDate: '2025-04-15', linkedItems: [] },
+    { id: 2, title: 'Design', status: 'Q3: 2025', description: 'Create UI/UX designs', dueDate: '2025-04-15', linkedItems: [] },
     { id: 3, title: 'Development', status: 'Q4:2025', description: 'Implement core features', dueDate: '2025-05-10', linkedItems: [] },
     { id: 4, title: 'Testing', status: 'Q1:2026', description: 'QA and bug fixes', dueDate: '2025-05-25', linkedItems: [] },
     { id: 5, title: 'Launch', status: 'New', description: 'Release product to market', dueDate: '2025-06-01', linkedItems: [] },
@@ -14,6 +14,7 @@ function App() {
   
   // New item form state
   const [formVisible, setFormVisible] = useState(false);
+  const [formError, setFormError] = useState('');
   const [formItem, setFormItem] = useState({
     id: null,
     title: '',
@@ -39,12 +40,11 @@ function App() {
 
   const saveItem = (e) => {
     e.preventDefault();
-    console.log("Form submitted");
     // Add or update item
     if (!formItem.title) {
       console.log("Missing title, form not submitted");
+      setFormError('Title is required. Please provide a title.');
       return;
-    }
     if (formItem.id) {
       // Update existing item
       console.log("Updating item with ID:", formItem.id);
@@ -70,7 +70,8 @@ function App() {
       status: 'Q2:2025'
     });
     setFormVisible(false);
-  };
+    setFormVisible(false);
+    setFormError(''); // Clear error on successful submission
 
   // Debug effect
   useEffect(() => {
@@ -114,7 +115,7 @@ function App() {
     setDraggedItem(item);
     draggedItemRef.current = item;
     // Required for Firefox
-    e.dataTransfer.setData('text/plain', item.id.toString());
+    e.dataTransfer.setData('application/json', JSON.stringify({ id: item.id }));
     // Add dragging class after a short delay to allow the transform to happen
     setTimeout(() => {
       e.target.classList.add('dragging');
@@ -153,15 +154,19 @@ function App() {
   };
 
   const saveLinks = () => {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === currentItem.id
-          ? { ...item, linkedItems: selectedLinkedItems }
-          : item
-      )
-    );
-    closeLinkModal();
-  };
+      if (!currentItem) {
+        console.error("No current item selected for linking.");
+        return;
+      }
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === currentItem.id
+            ? { ...item, linkedItems: selectedLinkedItems }
+            : item
+        )
+      );
+      closeLinkModal();
+    };
   
   const handleLinkChange = (id) => {
     setSelectedLinkedItems((prev) =>
@@ -186,7 +191,7 @@ function App() {
     { id: 'Q2:2025', title: 'Q2:2025' },
     { id: 'Q3:2025', title: 'Q3:2025' },
     { id: 'Q4:2025', title: 'Q4:2025' },
-    { id: 'Q1:2026', title: 'Q2:2026' },
+    { id: 'Q1:2026', title: 'Q1:2026' },
     { id: 'done', title: 'Done' },
   ];
   return (
@@ -207,7 +212,8 @@ function App() {
             {formItem.id ? 'Edit Item' : 'Add New Item'}
           </h2>
           <form onSubmit={saveItem}>
-            <div className="form-group">
+          {formError && <p className="form-error">{formError}</p>}
+          <form onSubmit={saveItem}>
               <label className="form-label">Title</label>
               <input
                 type="text"
@@ -320,6 +326,8 @@ function App() {
                       <button
                         className="action-btn"
                         onClick={(e) => editItem(item, e)}
+                        title="Edit this item"
+                        aria-label="Edit this item"
                       >
                         Edit
                       </button>
