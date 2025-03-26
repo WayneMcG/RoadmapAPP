@@ -5,11 +5,11 @@ import './styles.css';
 function App() {
   // Sample initial items
   const [items, setItems] = useState([
-    { id: 1, title: 'Research', status: 'backlog', description: 'Research market and competition', dueDate: '2025-04-01' },
-    { id: 2, title: 'Design', status: 'ready', description: 'Create UI/UX designs', dueDate: '2025-04-15' },
-    { id: 3, title: 'Development', status: 'in-progress', description: 'Implement core features', dueDate: '2025-05-10' },
-    { id: 4, title: 'Testing', status: 'in-review', description: 'QA and bug fixes', dueDate: '2025-05-25' },
-    { id: 5, title: 'Launch', status: 'done', description: 'Release product to market', dueDate: '2025-06-01' },
+    { id: 1, title: 'Research', status: 'Q2: 2025', description: 'Research market and competition', dueDate: '2025-04-01' },
+    { id: 2, title: 'Design', status: 'Q3:2025', description: 'Create UI/UX designs', dueDate: '2025-04-15' },
+    { id: 3, title: 'Development', status: 'Q4:2025', description: 'Implement core features', dueDate: '2025-05-10' },
+    { id: 4, title: 'Testing', status: 'Q1:2026', description: 'QA and bug fixes', dueDate: '2025-05-25' },
+    { id: 5, title: 'Launch', status: 'New', description: 'Release product to market', dueDate: '2025-06-01' },
   ]);
   
   // New item form state
