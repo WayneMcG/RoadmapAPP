@@ -5,11 +5,11 @@ import './styles.css';
 function App() {
   // Sample initial items
   const [items, setItems] = useState([
-    { id: 1, title: 'Research', status: 'Q2: 2025', description: 'Research market and competition', dueDate: '2025-04-01' },
-    { id: 2, title: 'Design', status: 'Q3:2025', description: 'Create UI/UX designs', dueDate: '2025-04-15' },
-    { id: 3, title: 'Development', status: 'Q4:2025', description: 'Implement core features', dueDate: '2025-05-10' },
-    { id: 4, title: 'Testing', status: 'Q1:2026', description: 'QA and bug fixes', dueDate: '2025-05-25' },
-    { id: 5, title: 'Launch', status: 'New', description: 'Release product to market', dueDate: '2025-06-01' },
+    { id: 1, title: 'Research', status: 'Q2: 2025', description: 'Research market and competition', dueDate: '2025-04-01', linkedItems: [] },
+    { id: 2, title: 'Design', status: 'Q3:2025', description: 'Create UI/UX designs', dueDate: '2025-04-15', linkedItems: [] },
+    { id: 3, title: 'Development', status: 'Q4:2025', description: 'Implement core features', dueDate: '2025-05-10', linkedItems: [] },
+    { id: 4, title: 'Testing', status: 'Q1:2026', description: 'QA and bug fixes', dueDate: '2025-05-25', linkedItems: [] },
+    { id: 5, title: 'Launch', status: 'New', description: 'Release product to market', dueDate: '2025-06-01', linkedItems: [] },
   ]);
   
   // New item form state
@@ -27,22 +27,24 @@ function App() {
   const draggedItemRef = useRef(null);
   const [draggingOver, setDraggingOver] = useState(null);
   
+  const [linkModalVisible, setLinkModalVisible] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [selectedLinkedItems, setSelectedLinkedItems] = useState([]);
+  
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormItem({ ...formItem, [name]: value });
   };
-  
-  // Add or update item
+
   const saveItem = (e) => {
     e.preventDefault();
     console.log("Form submitted");
-    
+    // Add or update item
     if (!formItem.title) {
       console.log("Missing title, form not submitted");
       return;
     }
-    
     if (formItem.id) {
       // Update existing item
       console.log("Updating item with ID:", formItem.id);
@@ -53,15 +55,12 @@ function App() {
       // Add new item
       const newId = Math.max(0, ...items.map(item => item.id)) + 1;
       console.log("Adding new item with ID:", newId);
-      
       const newItem = {
         ...formItem,
         id: newId
       };
-      
       setItems(prevItems => [...prevItems, newItem]);
     }
-    
     // Reset form
     setFormItem({
       id: null,
@@ -70,22 +69,21 @@ function App() {
       dueDate: '',
       status: 'Q2:2025'
     });
-    
     setFormVisible(false);
   };
-  
+
   // Debug effect
   useEffect(() => {
     console.log("Current items:", items);
   }, [items]);
-  
+
   // Start editing an item
   const editItem = (item, e) => {
     e.stopPropagation(); // Prevent drag start
     setFormItem({ ...item });
     setFormVisible(true);
   };
-  
+
   // Delete an item
   const deleteItem = (id, e) => {
     e.stopPropagation(); // Prevent drag start
@@ -93,7 +91,7 @@ function App() {
       setItems(items.filter(item => item.id !== id));
     }
   };
-  
+
   // Cancel form
   const cancelForm = () => {
     setFormItem({
@@ -105,40 +103,38 @@ function App() {
     });
     setFormVisible(false);
   };
-  
+
   // Get items by status
   const getItemsByStatus = (status) => {
     return items.filter(item => item.status === status);
   };
-  
+
   // Drag and drop handlers
   const handleDragStart = (item, e) => {
     setDraggedItem(item);
     draggedItemRef.current = item;
-    
     // Required for Firefox
     e.dataTransfer.setData('text/plain', item.id.toString());
-    
     // Add dragging class after a short delay to allow the transform to happen
     setTimeout(() => {
       e.target.classList.add('dragging');
     }, 0);
   };
-  
+
   const handleDragEnd = (e) => {
     e.target.classList.remove('dragging');
     setDraggedItem(null);
     draggedItemRef.current = null;
     setDraggingOver(null);
   };
-  
+
   const handleDragOver = (status, e) => {
     e.preventDefault();
     if (draggedItemRef.current && draggedItemRef.current.status !== status) {
       setDraggingOver(status);
     }
   };
-  
+
   const handleDragLeave = () => {
     setDraggingOver(null);
   };
@@ -153,17 +149,45 @@ function App() {
           : item
       ));
     }
-    
     setDraggingOver(null);
   };
+
+  const saveLinks = () => {
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === currentItem.id
+          ? { ...item, linkedItems: selectedLinkedItems }
+          : item
+      )
+    );
+    closeLinkModal();
+  };
   
+  const handleLinkChange = (id) => {
+    setSelectedLinkedItems((prev) =>
+      prev.includes(id)
+        ? prev.filter((linkedId) => linkedId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const openLinkModal = (item) => {
+    setCurrentItem(item);
+    setSelectedLinkedItems(item.linkedItems);
+    setLinkModalVisible(true);
+  };
+
+  const closeLinkModal = () => {
+    setLinkModalVisible(false);
+  };
+
   // Column definitions
   const columns = [
     { id: 'Q2:2025', title: 'Q2:2025' },
     { id: 'Q3:2025', title: 'Q3:2025' },
     { id: 'Q4:2025', title: 'Q4:2025' },
     { id: 'Q1:2026', title: 'Q2:2026' },
-    { id: 'done', title: 'Done' }
+    { id: 'done', title: 'Done' },
   ];
   
   return (
@@ -259,7 +283,6 @@ function App() {
                 <h3 className="column-title">{column.title}</h3>
                 <span className="column-count">{columnItems.length}</span>
               </div>
-              
               <div 
                 className={`item-list drop-zone ${draggingOver === column.id ? 'drag-over' : ''}`}
                 onDragOver={(e) => handleDragOver(column.id, e)}
@@ -283,6 +306,17 @@ function App() {
                         <strong>Due:</strong> {item.dueDate}
                       </p>
                     )}
+                    {item.linkedItems.length > 0 && (
+                      <div className="linked-items">
+                        <strong>Linked Items:</strong>
+                        <ul>
+                          {item.linkedItems.map((linkedId) => {
+                            const linkedItem = items.find((i) => i.id === linkedId);
+                            return <li key={linkedId}>{linkedItem?.title}</li>;
+                          })}
+                        </ul>
+                      </div>
+                    )}
                     <div className="item-actions">
                       <button
                         className="action-btn"
@@ -296,6 +330,12 @@ function App() {
                       >
                         Delete
                       </button>
+                      <button
+                        className="action-btn"
+                        onClick={() => openLinkModal(item)}
+                      >
+                        Link
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -304,6 +344,30 @@ function App() {
           );
         })}
       </div>
+      
+      {linkModalVisible && (
+        <div className="modal">
+          <h2>Link Items</h2>
+          <ul>
+            {items
+              .filter((item) => item.id !== currentItem.id)
+              .map((item) => (
+                <li key={item.id}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={selectedLinkedItems.includes(item.id)}
+                      onChange={() => handleLinkChange(item.id)}
+                    />
+                    {item.title}
+                  </label>
+                </li>
+              ))}
+          </ul>
+          <button onClick={saveLinks}>Save</button>
+          <button onClick={closeLinkModal}>Cancel</button>
+        </div>
+      )}
     </div>
   );
 }
